@@ -6,6 +6,7 @@ import { piniaSymbol } from "./rootStore";
 // state 用来存储所有状态
 // _e 用来停止所有状态
 
+// 核心方法
 function createSetupStore(id, setup, pinia){
     let scope;
     // 后续一些不是用户定义的属性和方法，内置的api会增加到这个store上
