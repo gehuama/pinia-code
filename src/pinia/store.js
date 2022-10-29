@@ -1,5 +1,5 @@
 // 存放defineStore api
-import { getCurrentInstance, inject, effectScope, computed, reactive, isRef, isReactive, toRefs } from "vue";
+import { getCurrentInstance, inject, effectScope, computed, reactive, isRef, isReactive, toRefs, watch } from "vue";
 import { piniaSymbol } from "./rootStore";
 // createPinia(),默认是一个插件具备一个install方法
 // _s 用来存储 id =>  store
@@ -10,15 +10,15 @@ function isComputed(v) { // 计算属性是ref 也是effect
   return !!(isRef(v) && v.effect)
 }
 
-function isObject(value){
+function isObject(value) {
   return typeof value === 'object' && value === null;
 }
 // 递归合并两个对象
-function mergeReactiveObject(target, state){
+function mergeReactiveObject(target, state) {
   for (let key in state) {
     let oldValue = target[key];
     let newValue = state[key]; // 这里循环的时候 拿出来就丧失了响应式
-    if(isObject(oldValue) && isObject(newValue)){
+    if (isObject(oldValue) && isObject(newValue)) {
       target[key] = mergeReactiveObject(oldValue, newValue);
     } else {
       target[key] = newValue;
@@ -31,17 +31,26 @@ function mergeReactiveObject(target, state){
 function createSetupStore(id, setup, pinia, isOption) {
   let scope;
   // $patch 1. 通过对象进行合并 2. 直接给它一个函数让其去执行，用户拿到这个状态去更新
-  function $patch(partialStateOrMutation){
-    if(typeof partialStateOrMutation === 'object'){
+  function $patch(partialStateOrMutation) {
+    if (typeof partialStateOrMutation === 'object') {
       // 用新的状态和并来的状态
       console.log(pinia.state.value[id], partialStateOrMutation);
       mergeReactiveObject(pinia.state.value[id], partialStateOrMutation);
-    }else{
+    } else {
       partialStateOrMutation(pinia.state.value[id]);
     }
   }
   const partialStore = {
-    $patch
+    $patch,
+    $subscribe(callback, options = {}) {
+      // 每次状态变化都会触发此函数
+      scope.run(()=>{
+        watch(pinia.state.value[id], (state) => {
+          callback({ storeId: id }, state)
+        }, options)
+      })
+      
+    }
   }
 
   // 后续一些不是用户定义的属性和方法，内置的api会增加到这个store上
@@ -91,7 +100,7 @@ function createOptionsStore(id, options, pinia) {
   function setup() { // 这里面会对用户传递的state, actions, getters 做处理
     pinia.state.value[id] = state ? state() : {};
     const localScope = toRefs(pinia.state.value[id]); // 我们需要将状态转化成ref 普通值是没有响应式的 需要转换成ref才具备响应式
-    
+
     // getters
     return Object.assign(
       localScope, // 用户的状态
@@ -106,9 +115,9 @@ function createOptionsStore(id, options, pinia) {
       }, {}));
   }
   const store = createSetupStore(id, setup, pinia, true);
-  store.$reset = function (){
+  store.$reset = function () {
     const newState = state ? state() : {}
-    store.$patch((state)=>{
+    store.$patch((state) => {
       Object.assign(state, newState); // 默认状态覆盖到老状态
     })
   }

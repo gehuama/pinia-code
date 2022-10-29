@@ -16,6 +16,9 @@ const store2 = useCounterStore2();
 const handleClick2 = ()=>{
   store2.increment(3)
 }
+store2.$subscribe(function(storeInfo, state){
+  console.log(storeInfo,state);
+})
 </script>
 
 <template>

@@ -1,5 +1,5 @@
-
 import { defineStore } from "@/pinia";
+// import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 // defineStore中的id是独一无二的
 // {counter => state, xxx => state}
