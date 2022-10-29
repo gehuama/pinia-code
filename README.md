@@ -24,4 +24,5 @@
 - $patch 
 - $reset (值支持optionsAPI) 将状态重置默认方法
 - $subscribe(监听状态变化，可以将状态存到本地中) 
-- $action(监听方法操作，监听用户调用action的操作，可以监听到方法执行前，执行后-after，支持错误-onError) 此过程是一个发布订阅模式
+- $onAction(监听方法操作，监听用户调用action的操作，可以监听到方法执行前，执行后-after，支持错误-onError) 此过程是一个发布订阅模式
+- $dispose（卸载某个store方法）

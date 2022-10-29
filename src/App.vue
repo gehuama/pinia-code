@@ -12,6 +12,12 @@ const handleClick1 = ()=>{
 const handleReset = ()=>{
   store1.$reset();
 }
+const handleDispose = () =>{
+  store1.$dispose(); // scope.run 收集的effect的 scope.stop 是停止effect
+}
+const handleDisposeAll = () =>{
+  // store1._p._e.stop(); // 我们可以终止所有effect, pinia API中没有提供该方法
+}
 const store2 = useCounterStore2();
 const handleClick2 = ()=>{
   store2.increment(3)
@@ -37,11 +43,13 @@ store2.$onAction(function({after, onError}){ // 方法操作
   {{ store1.double }}
   <button @click="handleClick1">修改状态</button>
   <button @click="handleReset">重置状态</button>
+  <button @click="handleDispose">卸载响应式</button>
   <hr color="red" />
   —————————————setup——————————————<br />
   {{ store2.count }}/
   {{ store2.double }}
   <button @click="handleClick2">修改状态</button>
+  <button @click="handleDisposeAll">终止所有</button>
 </template>
 
 <style scoped>

@@ -1,8 +1,8 @@
 import { createApp, effect, reactive, effectScope } from 'vue'
 import App from './App.vue'
 
-import { createPinia } from '@/pinia'
-// import { createPinia } from 'pinia'
+// import { createPinia } from '@/pinia'
+import { createPinia } from 'pinia'
 const app = createApp(App);
 // 基本上咱们js中的插件都是函数
 // function createPinia(){

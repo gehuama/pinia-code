@@ -52,7 +52,12 @@ function createSetupStore(id, setup, pinia, isOption) {
         }, options)
       })
     },
-    $onAction:addSubscription.bind(null, actionSubscriptions)
+    $onAction:addSubscription.bind(null, actionSubscriptions),
+    $dispose(){
+      scope.stop(); // 清除响应式
+      actionSubscriptions; // 取消订阅
+      pinia._s.delete(id); // 清除store
+    }
   }
 
   // 后续一些不是用户定义的属性和方法，内置的api会增加到这个store上
@@ -83,20 +88,21 @@ function createSetupStore(id, setup, pinia, isOption) {
       let ret
       try {  // 用户调用action函数时会报错
         ret = action.apply(store, arguments);
-        // 执行后
-        triggerSubscriptions(afterCallbackList, ret);
       } catch (error) {
         triggerSubscriptions(onErrorCallbackList, error);
       }
       if(ret instanceof Promise){ // action 可以写成promise
         return ret.then((value)=>{
           // 执行后
-          triggerSubscriptions(afterCallbackList, value);
+          return triggerSubscriptions(afterCallbackList, value);
         }).catch((error)=>{
           // 执行错误
           triggerSubscriptions(onErrorCallbackList, error);
+          return Promise.reject(error)
         })
       }
+      // 执行后
+      triggerSubscriptions(afterCallbackList, ret);
       return ret;
     }
   }
