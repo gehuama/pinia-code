@@ -37,6 +37,23 @@ const app = createApp(App);
 // state.name = "畅展"
 // state.name = "畅展1"
 
-app.use(createPinia()) // 插件要求得有一个install方法
+// app.use(createPinia()) // 插件要求得有一个install方法
+// 使用插件写法
+const pinia = createPinia();
+pinia.use(function ({ store }) { // 插件就是一个函数，use 是用来注册插件的
+    const local = localStorage.getItem(store.$id + "PINIA_STATE");
+    if (local) {
+        store.$state = JSON.parse(local);
+    }
+    store.$subscribe(({ storeId: id }, state) => {
+        localStorage.setItem(id + "PINIA_STATE", JSON.stringify(state));
+    })
+    store.$onAction(()=>{ // 埋点
 
+    })
+    // 插件的核心就是利用$onAction，$subscribe
+    console.log(store);
+})
+
+app.use(pinia)
 app.mount('#app')

@@ -46,14 +46,14 @@ function createSetupStore(id, setup, pinia, isOption) {
     $patch,
     $subscribe(callback, options = {}) {
       // 每次状态变化都会触发此函数
-      scope.run(()=>{
+      scope.run(() => {
         watch(pinia.state.value[id], (state) => {
           callback({ storeId: id }, state)
         }, options)
       })
     },
-    $onAction:addSubscription.bind(null, actionSubscriptions),
-    $dispose(){
+    $onAction: addSubscription.bind(null, actionSubscriptions),
+    $dispose() {
       scope.stop(); // 清除响应式
       actionSubscriptions; // 取消订阅
       pinia._s.delete(id); // 清除store
@@ -76,26 +76,26 @@ function createSetupStore(id, setup, pinia, isOption) {
       const afterCallbackList = [];
       const onErrorCallbackList = [];
       // after订阅
-      function after(callback){
+      function after(callback) {
         afterCallbackList.push(callback);
       }
       // onError订阅
-      function onError(callback){
+      function onError(callback) {
         onErrorCallbackList.push(callback);
       }
       // 执行前
-      triggerSubscriptions(actionSubscriptions, {after, onError});
+      triggerSubscriptions(actionSubscriptions, { after, onError });
       let ret
       try {  // 用户调用action函数时会报错
         ret = action.apply(store, arguments);
       } catch (error) {
         triggerSubscriptions(onErrorCallbackList, error);
       }
-      if(ret instanceof Promise){ // action 可以写成promise
-        return ret.then((value)=>{
+      if (ret instanceof Promise) { // action 可以写成promise
+        return ret.then((value) => {
           // 执行后
           return triggerSubscriptions(afterCallbackList, value);
-        }).catch((error)=>{
+        }).catch((error) => {
           // 执行错误
           triggerSubscriptions(onErrorCallbackList, error);
           return Promise.reject(error)
@@ -120,6 +120,7 @@ function createSetupStore(id, setup, pinia, isOption) {
       }
     }
   }
+  store.$id = id;
   // console.log(pinia.state.value);
   // pinia._e.stop(); // 停止全部
   // scope.stop() // 只是停止自己
@@ -127,9 +128,19 @@ function createSetupStore(id, setup, pinia, isOption) {
   Object.assign(store, setupStore);
   // 可以操作store的所有属性
   Object.defineProperty(store, "$state", {
-    get: ()=> pinia.state.value[id],
-    set: (state) => $patch($state=>{Object.assign($state, state)})
+    get: () => pinia.state.value[id],
+    set: (state) => $patch($state => { Object.assign($state, state) })
   }) // store上增加$state属性
+
+  // 每创建一个store 执行一次use
+  pinia._p.forEach(plugin => {
+    // 将插件的返回值作为store的属性
+    Object.assign(store,
+      scope.run(() => {
+        plugin({ store })
+      }))
+
+  });
   return store;
 }
 function createOptionsStore(id, options, pinia) {

@@ -8,8 +8,13 @@ export function createPinia() {
 
 
     // 状态里面 可能会存放 计算属性 computed
-
+    const _p = [];
     const pinia = {
+        use(plugin){
+            _p.push(plugin);
+            return this; // 链式写法 可以一直.use().use()
+        },
+        _p,
         _s: new Map(), // 这跟用这个map来存放所有的store {counter1=> store, counter2=> store}
         _e: scope, //
         install(app) {

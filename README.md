@@ -27,3 +27,4 @@
 - $onAction(监听方法操作，监听用户调用action的操作，可以监听到方法执行前，执行后-after，支持错误-onError) 此过程是一个发布订阅模式
 - $dispose（卸载某个store）
 - $state(替换状态)
+- plugin 插件
