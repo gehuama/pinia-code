@@ -3,7 +3,11 @@ import { useCounterStore1 } from "./stores/counter1";
 import { useCounterStore2 } from "./stores/counter2";
 const store1 = useCounterStore1();
 const handleClick1 = ()=>{
-  store1.increment(3)
+  // store1.increment(3)
+  store1.$patch({count: 2000}) // setState({})
+  // store1.count ++;
+  // store1.count ++;
+  // store1.count ++;
 }
 const store2 = useCounterStore2();
 const handleClick2 = ()=>{
