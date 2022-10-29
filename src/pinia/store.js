@@ -1,6 +1,7 @@
 // 存放defineStore api
 import { getCurrentInstance, inject, effectScope, computed, reactive, isRef, isReactive, toRefs, watch } from "vue";
 import { piniaSymbol } from "./rootStore";
+import { addSubscription, triggerSubscriptions } from "./subscribe";
 // createPinia(),默认是一个插件具备一个install方法
 // _s 用来存储 id =>  store
 // state 用来存储所有状态
@@ -40,6 +41,7 @@ function createSetupStore(id, setup, pinia, isOption) {
       partialStateOrMutation(pinia.state.value[id]);
     }
   }
+  let actionSubscriptions = [];
   const partialStore = {
     $patch,
     $subscribe(callback, options = {}) {
@@ -49,8 +51,8 @@ function createSetupStore(id, setup, pinia, isOption) {
           callback({ storeId: id }, state)
         }, options)
       })
-      
-    }
+    },
+    $onAction:addSubscription.bind(null, actionSubscriptions)
   }
 
   // 后续一些不是用户定义的属性和方法，内置的api会增加到这个store上
@@ -66,10 +68,35 @@ function createSetupStore(id, setup, pinia, isOption) {
   });
   function wrapAction(name, action) {
     return function () {
-      let ret = action.apply(store, arguments);
-      // action执行后可能是promise
-      // todo
-
+      const afterCallbackList = [];
+      const onErrorCallbackList = [];
+      // after订阅
+      function after(callback){
+        afterCallbackList.push(callback);
+      }
+      // onError订阅
+      function onError(callback){
+        onErrorCallbackList.push(callback);
+      }
+      // 执行前
+      triggerSubscriptions(actionSubscriptions, {after, onError});
+      let ret
+      try {  // 用户调用action函数时会报错
+        ret = action.apply(store, arguments);
+        // 执行后
+        triggerSubscriptions(afterCallbackList, ret);
+      } catch (error) {
+        triggerSubscriptions(onErrorCallbackList, error);
+      }
+      if(ret instanceof Promise){ // action 可以写成promise
+        return ret.then((value)=>{
+          // 执行后
+          triggerSubscriptions(afterCallbackList, value);
+        }).catch((error)=>{
+          // 执行错误
+          triggerSubscriptions(onErrorCallbackList, error);
+        })
+      }
       return ret;
     }
   }

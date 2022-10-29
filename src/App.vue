@@ -16,8 +16,18 @@ const store2 = useCounterStore2();
 const handleClick2 = ()=>{
   store2.increment(3)
 }
-store2.$subscribe(function(storeInfo, state){
+store2.$subscribe(function(storeInfo, state){ // 状态变化
   console.log(storeInfo,state);
+})
+// 此方法是发布订阅
+store2.$onAction(function({after, onError}){ // 方法操作
+  console.log("action running", store2.count);
+  after(()=>{
+    console.log("action after", store2.count);
+  })
+  onError((err)=>{
+    console.log("action error", err);
+  })
 })
 </script>
 
