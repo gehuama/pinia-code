@@ -105,8 +105,13 @@ function createOptionsStore(id, options, pinia) {
         return memo;
       }, {}));
   }
-  createSetupStore(id, setup, pinia, true);
-
+  const store = createSetupStore(id, setup, pinia, true);
+  store.$reset = function (){
+    const newState = state ? state() : {}
+    store.$patch((state)=>{
+      Object.assign(state, newState); // 默认状态覆盖到老状态
+    })
+  }
 }
 
 
