@@ -8,6 +8,7 @@ const handleClick1 = ()=>{
   // store1.count ++;
   // store1.count ++;
   // store1.count ++;
+  store1.$state = {count: 1024};
 }
 const handleReset = ()=>{
   store1.$reset();
