@@ -1,7 +1,10 @@
 <script setup>
 import { useCounterStore1 } from "./stores/counter1";
 import { useCounterStore2 } from "./stores/counter2";
+import { storeToRefs } from "@/pinia/storeToRefs";
 const store1 = useCounterStore1();
+// 我们用pinia解构store 不要用toRefs 要使用 storeToRefs 可以跳过函数处理
+const {count, double} =  storeToRefs(store1); // toRef 原理
 const handleClick1 = ()=>{
   // store1.increment(3)
   store1.$patch({count: 2000}) // setState({})
@@ -40,8 +43,8 @@ store2.$onAction(function({after, onError}){ // 方法操作
 
 <template>
   —————————————options————————————<br />
-  {{ store1.count }}/
-  {{ store1.double }}
+  {{ count }}/
+  {{ double }}
   <button @click="handleClick1">修改状态</button>
   <button @click="handleReset">重置状态</button>
   <button @click="handleDispose">卸载响应式</button>

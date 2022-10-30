@@ -1,7 +1,7 @@
 // 存的是createPinia这个api
 import { ref, effectScope } from "vue";
 import { piniaSymbol } from "./rootStore";
-export let activePinia;
+export let activePinia; // 全局变量
 export const setActivePinia = (pinia) => activePinia = pinia;
 export function createPinia() {
     const scope = effectScope();
