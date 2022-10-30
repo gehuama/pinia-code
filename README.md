@@ -28,3 +28,4 @@
 - $dispose（卸载某个store）
 - $state(替换状态)
 - plugin 插件
+- 实现pinia 在任何地方都可以使用Pinia

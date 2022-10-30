@@ -1,5 +1,6 @@
 // 存放defineStore api
 import { getCurrentInstance, inject, effectScope, computed, reactive, isRef, isReactive, toRefs, watch } from "vue";
+import { activePinia, setActivePinia } from "./createPinia";
 import { piniaSymbol } from "./rootStore";
 import { addSubscription, triggerSubscriptions } from "./subscribe";
 // createPinia(),默认是一个插件具备一个install方法
@@ -192,7 +193,11 @@ export function defineStore(idOrOptions, setup) {
   function useStore() {
     // 这里我们拿到的store，应该是同一个
     let instance = getCurrentInstance();
-    const pinia = instance && inject(piniaSymbol);
+    let pinia = instance && inject(piniaSymbol);
+    if(pinia){
+      setActivePinia(pinia);
+    }
+    pinia = activePinia; // 将全局变量给你，这个一定存在
     if (!pinia._s.has(id)) { // 第一次useStore
       if (isSetupStore) {
         createSetupStore(id, setup, pinia);

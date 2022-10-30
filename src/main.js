@@ -2,6 +2,7 @@ import { createApp, effect, reactive, effectScope } from 'vue'
 import App from './App.vue'
 
 import { createPinia } from '@/pinia'
+import { useCounterStore1 } from './stores/counter1';
 // import { createPinia } from 'pinia'
 const app = createApp(App);
 // 基本上咱们js中的插件都是函数
@@ -57,3 +58,8 @@ pinia.use(function ({ store }) { // 插件就是一个函数，use 是用来注�
 
 app.use(pinia)
 app.mount('#app')
+
+
+// 异步路由 在任何地方都可以使用
+const store = useCounterStore1(); // inject 方法无法使用
+console.log(store.count);
