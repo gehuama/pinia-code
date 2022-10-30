@@ -114,7 +114,7 @@ function createSetupStore(id, setup, pinia, isOption) {
     }
     // 如何看这个值是不是状态
     // computed 也是 ref
-    if (isRef(prop) || !isComputed(prop) || isReactive(prop)) {
+    if ((isRef(prop) && !isComputed(prop)) || isReactive(prop)) {
       if (!isOption) {
         pinia.state.value[id][key] = prop;
       }
